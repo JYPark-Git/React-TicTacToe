@@ -1,31 +1,84 @@
-import React, { Component } from 'react';
+import React, { useState } from 'react';
 import Square from './Square';  /* export default */
 import './Board.css';
 
-export default class Board extends Component {
+const Board = () => {
 
-  renderSquare(i) {
-    return <Square />;
+  const [squares, setSquares] = useState(Array(9).fill(null));
+  const [xIsNext, setXIsNext] = useState(true);
+
+  const calculateWinner = squares => {
+    const lines = [
+      [0, 1, 2],
+      [3, 4, 5],
+      [6, 7, 8],
+      [0, 3, 6],
+      [1, 4, 7],
+      [2, 5, 8],
+      [0, 4, 8],
+      [2, 4, 6]
+    ];
+
+    for(let index = 0; index < lines.length; index++) {
+      const [a, b, c] = lines[index];
+      if(squares[a]
+          && squares[a] === squares[b]
+          && squares[a] === squares[c]
+        ) {
+          return squares[a];
+        }
+    }
+    return null;
   }
 
-  render() {
-    return (<div>
-      <div className='status'>Next Player : </div>
-      <div className='board-row'>
-        {this.renderSquare(1)}
-        {this.renderSquare(2)}
-        {this.renderSquare(3)}
-      </div>
-      <div className='board-row'>
-        {this.renderSquare(4)}
-        {this.renderSquare(5)}
-        {this.renderSquare(6)}
-      </div>
-      <div className='board-row'>
-        {this.renderSquare(7)}
-        {this.renderSquare(8)}
-        {this.renderSquare(9)}
-      </div>
-    </div>);
+  const winner = calculateWinner(squares);
+  let status;
+  if(winner) {
+    status = `Winner : ${winner}`;
+  } else {
+    status = `Next Player : ${xIsNext ? 'X' : 'O'}`;
   }
-}
+
+  const handleClick = i => {
+    const newSquares = squares.slice();
+    newSquares[i] = xIsNext ? 'X' : 'O';
+
+    if(calculateWinner(squares)) {
+      alert('승부가 결정되었습니다')
+      return;
+    } else if(squares[i]) {
+      alert('이미 체크되었습니다')
+      return;
+    }
+
+    setSquares(newSquares);
+    setXIsNext(prev => !prev);
+  }
+
+  const renderSquare = i => {
+    return <Square value={squares[i]} 
+                   onClick={() => {handleClick(i);}}
+            />;
+  }
+
+  return (<div>
+    <div className='status'>{status}</div>
+    <div className='board-row'>
+      {renderSquare(0)}
+      {renderSquare(1)}
+      {renderSquare(2)}
+    </div>
+    <div className='board-row'>
+      {renderSquare(3)}
+      {renderSquare(4)}
+      {renderSquare(5)}
+    </div>
+    <div className='board-row'>
+      {renderSquare(6)}
+      {renderSquare(7)}
+      {renderSquare(8)}
+    </div>
+  </div>);
+};
+
+export default Board;
